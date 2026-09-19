@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Modern Convenience Store POS</title>
+    <link rel="stylesheet" href="fonts.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Global App Header -->
+        <header class="app-header">
+            <div class="brand">
+                <span class="logo" style="font-size: 24px;">🏪</span>
+                <h1 style="font-size: 20px; font-weight: 700;">McJim Store POS</h1>
+            </div>
+            <div class="header-right">
+                <div class="scanner-indicator" style="background: rgba(255,255,255,0.2); border-color: transparent; color: white;">Scanner Ready 🟢</div>
+                <div class="search-bar">
+                    <input type="text" id="search-input" placeholder="Search products...">
+                </div>
+                <button id="admin-panel-btn" class="admin-btn hidden" onclick="app.openAdminPanel()">Admin Tools</button>
+                <button class="theme-btn" id="theme-btn" onclick="app.toggleTheme()">🌙</button>
+                <div class="user-profile">
+                    <span id="current-user-name">👤 ...</span>
+                    <button onclick="app.logout()" class="logout-btn">Logout</button>
+                </div>
+            </div>
+        </header>
+
+        <div class="app-content">
+            <!-- Main Content: Product Catalog -->
+            <main class="catalog-section">
+                
+                <div class="categories" id="category-container">
+                    <!-- Categories injected here -->
+                </div>
+    
+                <div class="product-grid" id="product-grid">
+                    <!-- Products will be injected here via JS -->
+                </div>
+            </main>
+
+        <!-- Sidebar: Cart & Checkout -->
+        <aside class="cart-section" id="cart-section">
+            <div class="cart-header">
+                <div>
+                    <h2>Current Order</h2>
+                    <span class="order-id" id="order-id">#ORD-001</span>
+                </div>
+                <button class="close-cart-btn" onclick="app.toggleMobileCart()">✕</button>
+            </div>
+
+            <div class="cart-items" id="cart-items">
+                <div class="empty-cart-msg">Your cart is empty</div>
+            </div>
+
+            <div class="cart-summary">
+                <div class="summary-row">
+                    <span>Subtotal</span>
+                    <span id="subtotal">₱0.00</span>
+                </div>
+                <div class="summary-row">
+                    <span>Tax (8%)</span>
+                    <span id="tax">₱0.00</span>
+                </div>
+                <div class="summary-row total">
+                    <span>Total</span>
+                    <span id="total">₱0.00</span>
+                </div>
+                
+                <button class="checkout-btn" id="checkout-btn" disabled>
+                    Pay Now
+                </button>
+            </div>
+        </aside>
+        </div>
+
+        <footer class="app-footer">
+            &copy; 2026 Store POS System. All rights reserved. | Need help? Contact Support at support@mcjim-server.com
+        </footer>
+
+        <!-- Mobile Cart FAB -->
+        <button class="mobile-cart-btn" id="mobile-cart-btn" onclick="app.toggleMobileCart()">
+            🛒 Cart (0)
+        </button>
+    </div>
+
+    <!-- Checkout Modal -->
+    <div class="modal-overlay" id="checkout-modal">
+        <div class="modal-content">
+            <h2>Checkout</h2>
+            <div class="payment-amount">
+                Total Due: <span id="modal-total">₱0.00</span>
+            </div>
+            
+            <div class="payment-methods">
+                <button class="pay-method-btn" onclick="app.processPayment('cash')">Cash</button>
+                <button class="pay-method-btn" onclick="app.processPayment('card')">Credit Card</button>
+            </div>
+            <button class="cancel-btn" onclick="app.closeModal('checkout-modal')">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Receipt Modal -->
+    <div class="modal-overlay" id="receipt-modal">
+        <div class="receipt-content">
+            <div class="receipt-header">
+                <h2>Receipt</h2>
+                <p>Thank you for shopping!</p>
+            </div>
+            <div class="receipt-details" id="receipt-details">
+                <!-- Receipt info injected here -->
+            </div>
+            <button class="done-btn" onclick="app.newOrder()">New Order</button>
+        </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div class="modal-overlay active" id="login-modal">
+        <div class="modal-content">
+            <h2>POS Login</h2>
+            <div class="login-form">
+                <input type="text" id="terminal-input" placeholder="Terminal Name (e.g. Front Desk)" class="login-input" value="Terminal 1">
+                <input type="text" id="username-input" placeholder="Username (admin or cashier)" class="login-input">
+                <input type="password" id="password-input" placeholder="Password (123)" class="login-input">
+                <div id="login-error" class="error-msg hidden">Invalid credentials</div>
+                <button class="done-btn" onclick="app.login()">Login</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Product Modal -->
+    <div class="modal-overlay" id="add-product-modal">
+        <div class="modal-content">
+            <h2>Add New Product</h2>
+            <div class="login-form" style="margin-top:16px;">
+                <input type="text" id="new-barcode" placeholder="Barcode" class="login-input">
+                <input type="text" id="new-name" placeholder="Product Name" class="login-input">
+                <input type="text" id="new-category" placeholder="Category (e.g. snack)" class="login-input">
+                <input type="number" id="new-price" placeholder="Price (0.00)" step="0.01" class="login-input">
+                <input type="number" id="new-stock" placeholder="Initial Stock" class="login-input">
+                <input type="text" id="new-emoji" placeholder="Emoji Icon (e.g. 🍫)" class="login-input">
+                
+                <div style="display:flex; gap:12px; margin-top:24px;">
+                    <button class="cancel-btn" onclick="app.closeModal('add-product-modal')" style="flex:1;">Cancel</button>
+                    <button class="done-btn" onclick="app.saveNewProduct()" style="flex:1;">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Inventory Modal -->
+    <div class="modal-overlay" id="inventory-modal">
+        <div class="modal-content" style="width: 100%; max-width: 800px;">
+            <h2>Inventory Management</h2>
+            <div style="overflow-x:auto; max-height: 60vh; margin-top:16px;">
+                <table class="inventory-table">
+                    <thead>
+                        <tr>
+                            <th>Icon</th>
+                            <th>Name</th>
+                            <th>Barcode</th>
+                            <th>Category</th>
+                            <th>Price</th>
+                            <th>Stock</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="inventory-tbody">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+            <button class="done-btn" style="margin-top:24px;" onclick="app.closeModal('inventory-modal')">Close</button>
+        </div>
+    </div>
+
+    <!-- Admin Menu Modal -->
+    <div class="modal-overlay" id="admin-menu-modal">
+        <div class="modal-content">
+            <h2>Admin Dashboard</h2>
+            <div class="admin-menu-grid">
+                <div class="admin-menu-card" onclick="app.openInventoryPanel()">
+                    <div style="font-size: 32px;">📦</div>
+                    <h3>Manage Inventory</h3>
+                </div>
+                <div class="admin-menu-card" onclick="app.openReportsPanel()">
+                    <div style="font-size: 32px;">📊</div>
+                    <h3>Sales Reports</h3>
+                </div>
+            </div>
+            <button class="done-btn" style="margin-top:24px;" onclick="app.closeModal('admin-menu-modal')">Close</button>
+        </div>
+    </div>
+
+    <!-- Reports Modal -->
+    <div class="modal-overlay" id="reports-modal">
+        <div class="modal-content" style="width: 100%; max-width: 800px;">
+            <h2>Sales Reports</h2>
+            <div class="report-grid">
+                <div class="report-card">
+                    <h3>Today</h3>
+                    <div class="revenue" id="report-daily-rev">₱0.00</div>
+                    <div class="orders" id="report-daily-ord">0 Orders</div>
+                </div>
+                <div class="report-card">
+                    <h3>This Month</h3>
+                    <div class="revenue" id="report-monthly-rev">₱0.00</div>
+                    <div class="orders" id="report-monthly-ord">0 Orders</div>
+                </div>
+                <div class="report-card">
+                    <h3>All-Time</h3>
+                    <div class="revenue" id="report-alltime-rev">₱0.00</div>
+                    <div class="orders" id="report-alltime-ord">0 Orders</div>
+                </div>
+            </div>
+            
+            <div class="stats-grid">
+                <div class="stats-card">
+                    <h3>Best Selling Products</h3>
+                    <ul class="best-sellers-list" id="best-sellers-list">
+                        <!-- Populated by JS -->
+                    </ul>
+                </div>
+                <div class="stats-card">
+                    <h3>Payment Methods</h3>
+                    <div class="payment-stats" id="payment-stats">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </div>
+            <button class="done-btn" style="margin-top:24px;" onclick="app.closeModal('reports-modal')">Close</button>
+        </div>
+    </div>
+
+    <!-- Edit Product Modal -->
+    <div class="modal-overlay" id="edit-product-modal">
+        <div class="modal-content">
+            <h2>Edit Product</h2>
+            <div class="login-form" style="margin-top:16px;">
+                <input type="hidden" id="edit-id">
+                <input type="text" id="edit-barcode" placeholder="Barcode" class="login-input" disabled>
+                <input type="text" id="edit-name" placeholder="Product Name" class="login-input">
+                <input type="text" id="edit-category" placeholder="Category" class="login-input">
+                <input type="number" id="edit-price" placeholder="Price (0.00)" step="0.01" class="login-input">
+                <input type="number" id="edit-stock" placeholder="Stock" class="login-input">
+                <input type="text" id="edit-emoji" placeholder="Emoji Icon" class="login-input">
+                
+                <div style="display:flex; gap:12px; margin-top:24px;">
+                    <button class="cancel-btn" onclick="app.closeModal('edit-product-modal')" style="flex:1;">Cancel</button>
+                    <button class="done-btn" onclick="app.saveProductEdit()" style="flex:1;">Save Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
