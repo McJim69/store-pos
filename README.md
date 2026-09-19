@@ -60,3 +60,9 @@ Because the POS is served via Flask on `0.0.0.0:5000`, you can access it from an
 - `init_db.py` - Script to generate/reset the database with dummy data.
 - `start.bat` - One-click deployment script for dev.
 - `build.bat` - Recompiles the `server.exe` file.
+
+---
+
+## 📁 See also our deployed Projects :
+
+### www.mcjim-server.com/projects
