@@ -63,6 +63,6 @@ Because the POS is served via Flask on `0.0.0.0:5000`, you can access it from an
 
 ---
 
-## 📁 See also our deployed Projects :
+## 📡 See also our deployed Projects :
 
 ### www.mcjim-server.com/projects
